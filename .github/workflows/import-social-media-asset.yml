@@ -1,0 +1,39 @@
+name: Import social media asset
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_path:
+        description: Path to the JPEG inside this repository
+        required: true
+        type: string
+      name:
+        description: Public filename without .jpg
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Import JPEG into scali.dev
+        env:
+          IMAGE_PATH: ${{ inputs.image_path }}
+          PUBLIC_NAME: ${{ inputs.name }}
+        run: |
+          set -euo pipefail
+
+          case "$IMAGE_PATH" in
+            social-staging/*.jpg|social-staging/*.jpeg) ;;
+            *) echo "Invalid image path"; exit 1 ;;
+          esac
+
+          SOURCE="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/${IMAGE_PATH}"
+
+          curl --fail --silent --show-error --get             "https://scali.dev/api/social-media/import"             --data-urlencode "source=${SOURCE}"             --data-urlencode "name=${PUBLIC_NAME}"
+
+          echo
+          echo "Public URL: https://scali.dev/media/social/${PUBLIC_NAME}.jpg"
