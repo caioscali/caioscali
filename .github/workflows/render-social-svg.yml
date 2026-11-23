@@ -23,14 +23,12 @@ jobs:
           sudo apt-get install -y librsvg2-bin imagemagick
 
       - name: Render changed SVGs
-        env:
-          BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          CHANGED="$(git diff --name-only "${BEFORE_SHA}" "${GITHUB_SHA}" -- 'social-staging/*.svg' || true)"
+          CHANGED="$(git show --pretty='' --name-only HEAD -- 'social-staging/*.svg' | sed '/^$/d')"
           [ -n "$CHANGED" ] || exit 0
 
           while read -r SVG; do
