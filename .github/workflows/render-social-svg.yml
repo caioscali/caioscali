@@ -2,9 +2,10 @@ name: Render and import social SVG
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
-      - 'social-staging/*.svg'
+      - "social-staging/*.svg"
 
 permissions:
   contents: write
@@ -23,6 +24,7 @@ jobs:
           sudo apt-get install -y librsvg2-bin imagemagick jq
 
       - name: Render and import
+        shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -31,9 +33,9 @@ jobs:
           CHANGED="$(git show --pretty='' --name-only HEAD -- 'social-staging/*.svg' | sed '/^$/d')"
           [ -n "$CHANGED" ] || exit 0
 
-          JPGS=""
+          : > /tmp/rendered-jpgs.txt
 
-          while read -r SVG; do
+          while IFS= read -r SVG; do
             [ -n "$SVG" ] || continue
             BASE="${SVG%.svg}"
             PNG="${BASE}.png"
@@ -43,8 +45,7 @@ jobs:
             convert "$PNG" -background '#090D0F' -alpha remove -alpha off -quality 92 "$JPG"
             rm -f "$PNG"
             git add "$JPG"
-            JPGS="${JPGS}${JPG}
-"
+            echo "$JPG" >> /tmp/rendered-jpgs.txt
           done <<< "$CHANGED"
 
           git commit -m "Render social media JPEG" || true
@@ -52,7 +53,7 @@ jobs:
 
           NEW_SHA="$(git rev-parse HEAD)"
 
-          printf "%b" "$JPGS" | while read -r JPG; do
+          while IFS= read -r JPG; do
             [ -n "$JPG" ] || continue
             SOURCE="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${NEW_SHA}/${JPG}"
 
@@ -60,4 +61,4 @@ jobs:
 
             echo "$RESPONSE"
             echo "Public URL: $(echo "$RESPONSE" | jq -r '.url')"
-          done
+          done < /tmp/rendered-jpgs.txt
