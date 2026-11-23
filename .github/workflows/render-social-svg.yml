@@ -1,4 +1,4 @@
-name: Render social SVG
+name: Render and import social SVG
 
 on:
   push:
@@ -15,14 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 2
 
       - name: Install renderer
         run: |
           sudo apt-get update
-          sudo apt-get install -y librsvg2-bin imagemagick
+          sudo apt-get install -y librsvg2-bin imagemagick jq
 
-      - name: Render changed SVGs
+      - name: Render and import
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -30,6 +30,8 @@ jobs:
 
           CHANGED="$(git show --pretty='' --name-only HEAD -- 'social-staging/*.svg' | sed '/^$/d')"
           [ -n "$CHANGED" ] || exit 0
+
+          JPGS=""
 
           while read -r SVG; do
             [ -n "$SVG" ] || continue
@@ -41,7 +43,21 @@ jobs:
             convert "$PNG" -background '#090D0F' -alpha remove -alpha off -quality 92 "$JPG"
             rm -f "$PNG"
             git add "$JPG"
+            JPGS="${JPGS}${JPG}
+"
           done <<< "$CHANGED"
 
-          git commit -m "Render social media JPEG" || exit 0
+          git commit -m "Render social media JPEG" || true
           git push origin main
+
+          NEW_SHA="$(git rev-parse HEAD)"
+
+          printf "%b" "$JPGS" | while read -r JPG; do
+            [ -n "$JPG" ] || continue
+            SOURCE="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${NEW_SHA}/${JPG}"
+
+            RESPONSE="$(curl --fail --silent --show-error --get               "https://scali.dev/api/social-media/import"               --data-urlencode "source=${SOURCE}")"
+
+            echo "$RESPONSE"
+            echo "Public URL: $(echo "$RESPONSE" | jq -r '.url')"
+          done
