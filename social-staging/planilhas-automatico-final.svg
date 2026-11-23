@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <rect width="1080" height="1080" fill="#090D0F"/>
+  <rect x="70" y="65" width="630" height="70" rx="22" fill="#101518" stroke="#29292F" stroke-width="2"/>
+  <circle cx="105" cy="100" r="12" fill="#00F57A"/>
+  <text x="135" y="111" fill="#F5F5F5" font-family="Arial, sans-serif" font-size="30" font-weight="700">AUTOMAÇÃO PARA SUA EMPRESA</text>
+
+  <text x="70" y="290" fill="#F5F5F5" font-family="Arial, sans-serif" font-size="82" font-weight="800">MENOS PLANILHAS.</text>
+  <text x="70" y="390" fill="#00F57A" font-family="Arial, sans-serif" font-size="82" font-weight="800">MAIS CONTROLE.</text>
+  <text x="70" y="450" fill="#C7CDD0" font-family="Arial, sans-serif" font-size="34">Centralize informações e automatize processos.</text>
+
+  <g font-family="Arial, sans-serif">
+    <rect x="70" y="525" width="285" height="160" rx="26" fill="#101518" stroke="#29292F" stroke-width="2"/>
+    <rect x="95" y="565" width="42" height="42" rx="10" fill="none" stroke="#00F57A" stroke-width="4"/>
+    <text x="155" y="600" fill="#F5F5F5" font-size="31" font-weight="700">Organização</text>
+
+    <rect x="397" y="525" width="285" height="160" rx="26" fill="#101518" stroke="#29292F" stroke-width="2"/>
+    <rect x="422" y="565" width="42" height="42" rx="10" fill="none" stroke="#00F57A" stroke-width="4"/>
+    <text x="482" y="600" fill="#F5F5F5" font-size="31" font-weight="700">Agilidade</text>
+
+    <rect x="724" y="525" width="285" height="160" rx="26" fill="#101518" stroke="#29292F" stroke-width="2"/>
+    <rect x="749" y="565" width="42" height="42" rx="10" fill="none" stroke="#00F57A" stroke-width="4"/>
+    <text x="809" y="585" fill="#F5F5F5" font-size="29" font-weight="700">Menos</text>
+    <text x="809" y="620" fill="#F5F5F5" font-size="29" font-weight="700">retrabalho</text>
+  </g>
+
+  <rect x="70" y="735" width="940" height="125" rx="28" fill="#171D20" stroke="#29292F" stroke-width="2"/>
+  <text x="105" y="785" fill="#F5F5F5" font-family="Arial, sans-serif" font-size="31" font-weight="700">Sistemas sob medida para sua empresa evoluir.</text>
+
+  <rect x="70" y="900" width="940" height="8" rx="4" fill="#29292F"/>
+  <rect x="70" y="900" width="300" height="8" rx="4" fill="#6D28D9"/>
+
+  <g transform="translate(250,930)">
+    <g fill="none" stroke="#00F57A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M55 25 25 50l30 25M100 25l30 25-30 25M90 10 67 90"/>
+    </g>
+    <text x="160" y="65" fill="#F5F5F5" font-family="Arial, sans-serif" font-size="58" font-weight="700">Scali.</text>
+    <text x="315" y="65" fill="#00F57A" font-family="Arial, sans-serif" font-size="58" font-weight="700">DEV</text>
+    <text x="165" y="98" fill="#F5F5F5" font-family="Arial, sans-serif" font-size="16" letter-spacing="2">TECNOLOGIA PARA O SEU NEGÓCIO.</text>
+  </g>
+</svg>
