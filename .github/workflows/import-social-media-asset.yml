@@ -1,6 +1,11 @@
 name: Import social media asset
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'social-staging/*.jpg'
+      - 'social-staging/*.jpeg'
   workflow_dispatch:
     inputs:
       image_path:
@@ -19,21 +24,42 @@ jobs:
   import:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
       - name: Import JPEG into scali.dev
         env:
-          IMAGE_PATH: ${{ inputs.image_path }}
-          PUBLIC_NAME: ${{ inputs.name }}
+          MANUAL_IMAGE_PATH: ${{ inputs.image_path }}
+          MANUAL_PUBLIC_NAME: ${{ inputs.name }}
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -euo pipefail
 
-          case "$IMAGE_PATH" in
-            social-staging/*.jpg|social-staging/*.jpeg) ;;
-            *) echo "Invalid image path"; exit 1 ;;
-          esac
+          import_one() {
+            IMAGE_PATH="$1"
+            PUBLIC_NAME="$2"
 
-          SOURCE="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/${IMAGE_PATH}"
+            case "$IMAGE_PATH" in
+              social-staging/*.jpg|social-staging/*.jpeg) ;;
+              *) echo "Invalid image path: $IMAGE_PATH"; exit 1 ;;
+            esac
 
-          curl --fail --silent --show-error --get             "https://scali.dev/api/social-media/import"             --data-urlencode "source=${SOURCE}"             --data-urlencode "name=${PUBLIC_NAME}"
+            SOURCE="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${GITHUB_SHA}/${IMAGE_PATH}"
 
-          echo
-          echo "Public URL: https://scali.dev/media/social/${PUBLIC_NAME}.jpg"
+            curl --fail --silent --show-error --get               "https://scali.dev/api/social-media/import"               --data-urlencode "source=${SOURCE}"               --data-urlencode "name=${PUBLIC_NAME}"
+
+            echo
+            echo "Public URL: https://scali.dev/media/social/${PUBLIC_NAME}.jpg"
+          }
+
+          if [ -n "${MANUAL_IMAGE_PATH:-}" ]; then
+            import_one "$MANUAL_IMAGE_PATH" "${MANUAL_PUBLIC_NAME:-$(basename "$MANUAL_IMAGE_PATH" | sed -E 's/\.jpe?g$//I')}"
+            exit 0
+          fi
+
+          git diff --name-only "${BEFORE_SHA}" "${GITHUB_SHA}" -- 'social-staging/*.jpg' 'social-staging/*.jpeg' | while read -r IMAGE_PATH; do
+            [ -n "$IMAGE_PATH" ] || continue
+            PUBLIC_NAME="$(basename "$IMAGE_PATH" | sed -E 's/\.jpe?g$//I')"
+            import_one "$IMAGE_PATH" "$PUBLIC_NAME"
+          done
