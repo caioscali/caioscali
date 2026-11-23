@@ -1,0 +1,49 @@
+name: Render social SVG
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'social-staging/*.svg'
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install renderer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin imagemagick
+
+      - name: Render changed SVGs
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          CHANGED="$(git diff --name-only "${BEFORE_SHA}" "${GITHUB_SHA}" -- 'social-staging/*.svg' || true)"
+          [ -n "$CHANGED" ] || exit 0
+
+          while read -r SVG; do
+            [ -n "$SVG" ] || continue
+            BASE="${SVG%.svg}"
+            PNG="${BASE}.png"
+            JPG="${BASE}.jpg"
+
+            rsvg-convert -w 1080 -h 1080 "$SVG" -o "$PNG"
+            convert "$PNG" -background '#090D0F' -alpha remove -alpha off -quality 92 "$JPG"
+            rm -f "$PNG"
+            git add "$JPG"
+          done <<< "$CHANGED"
+
+          git commit -m "Render social media JPEG" || exit 0
+          git push origin main
